@@ -1,0 +1,17 @@
+[features]
+seeds = []
+skip-lint = false
+
+[programs.devnet]
+ad_marketplace = "7uY4gV2SvB6LeqF3ou4qv5U8gjtW1NbRxgMje4UZ2a21"
+payments = "7DRc8iMfLH5UXLzd4ed2nbVu8g3SyyR17PY2bcRx23cP"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "Devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
