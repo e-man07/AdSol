@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("7uY4gV2SvB6LeqF3ou4qv5U8gjtW1NbRxgMje4UZ2a21");
+declare_id!("BCRoTx5oFi7VTmpftJhj7GBiHS5mK6yGYXW4uuWjYy8C");
 
 pub fn create_ad_slot(
     ctx: Context<CreateAdSlot>,

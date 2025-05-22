@@ -3,6 +3,7 @@ members = [
     "programs/ad-marketplace",
     "programs/payments",
 ]
+resolver = "2"
 
 [profile.release]
 overflow-checks = true
@@ -12,3 +13,9 @@ codegen-units = 1
 opt-level = 3
 incremental = false
 codegen-units = 1
+
+# Resolve dependency conflicts - align all Solana deps with Anchor 0.31.0
+[workspace.dependencies]
+anchor-lang = "=0.31.0"
+anchor-spl = "=0.31.0"
+solana-address-lookup-table-interface = "=2.2.2"

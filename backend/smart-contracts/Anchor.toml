@@ -1,16 +1,19 @@
+[toolchain]
+anchor_version = "0.31.0"
+
 [features]
-seeds = []
+resolution = true
 skip-lint = false
 
 [programs.devnet]
-ad_marketplace = "7uY4gV2SvB6LeqF3ou4qv5U8gjtW1NbRxgMje4UZ2a21"
-payments = "7DRc8iMfLH5UXLzd4ed2nbVu8g3SyyR17PY2bcRx23cP"
+ad_marketplace = "BCRoTx5oFi7VTmpftJhj7GBiHS5mK6yGYXW4uuWjYy8C"
+payments = "7SGnj1aJyyjknA6zZeM4tb5y2j8LQrVBiKZmDCJECkdq"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Devnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
