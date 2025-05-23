@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
+use ad_marketplace::ad_marketplace_structs::AdSlot;
 
-declare_id!("7SGnj1aJyyjknA6zZeM4tb5y2j8LQrVBiKZmDCJECkdq");
+declare_id!("3L1ESMJzFuv5tfPSoB1iHptoSndh3dRzpfVn8PRSX5FJ");
 
 #[program]
 pub mod payment {
@@ -64,7 +65,7 @@ pub struct EscrowPayment<'info> {
 
 #[derive(Accounts)]
 pub struct ReleaseEscrow<'info> {
-    #[account(mut, has_one = publisher, has_one = slot_key)]
+    #[account(mut, has_one = publisher)]
     pub escrow: Account<'info, Escrow>,
     #[account(mut)]
     pub publisher: AccountInfo<'info>,

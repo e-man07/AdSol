@@ -1,6 +1,12 @@
 use anchor_lang::prelude::*;
 
-declare_id!("BCRoTx5oFi7VTmpftJhj7GBiHS5mK6yGYXW4uuWjYy8C");
+declare_id!("FgcY5LgSSEqSdJdUstBefMaZgEtMcAzqDdzDMrU9j5X9");
+
+// Export the AdSlot struct for other programs to use
+pub mod ad_marketplace_structs {
+    use super::*;
+    pub use super::AdSlot;
+}
 
 pub fn create_ad_slot(
     ctx: Context<CreateAdSlot>,
@@ -14,7 +20,7 @@ pub fn create_ad_slot(
 ) -> Result<()> {
     let ad_slot = &mut ctx.accounts.ad_slot;
     ad_slot.owner = *ctx.accounts.owner.key;
-    ad_slot.slot_id = slot_id;
+    ad_slot.slot_id = slot_id.clone();
     ad_slot.price = price;
     ad_slot.duration = duration;
     ad_slot.is_auction = is_auction;
@@ -105,7 +111,7 @@ pub fn create_ad_slot(
         ad_slot.view_count += 1;
         Ok(())
     }
-}
+
 
 #[account]
 pub struct AdSlot {
