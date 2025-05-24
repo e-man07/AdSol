@@ -1,0 +1,530 @@
+{
+  "address": "5JFj9EFPa45pycaUmR8GwdzNXjZqZQ5ZQ3n6ndhQPYse",
+  "metadata": {
+    "name": "ad_marketplace",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "buy_fixed_price",
+      "discriminator": [
+        75,
+        238,
+        55,
+        242,
+        206,
+        229,
+        105,
+        255
+      ],
+      "accounts": [
+        {
+          "name": "ad_slot",
+          "writable": true
+        },
+        {
+          "name": "buyer",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "close_auction",
+      "discriminator": [
+        225,
+        129,
+        91,
+        48,
+        215,
+        73,
+        203,
+        172
+      ],
+      "accounts": [
+        {
+          "name": "ad_slot",
+          "writable": true
+        },
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_ad",
+      "discriminator": [
+        103,
+        133,
+        51,
+        53,
+        3,
+        145,
+        44,
+        142
+      ],
+      "accounts": [
+        {
+          "name": "ad",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "slot"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "ad_id",
+          "type": "string"
+        },
+        {
+          "name": "media_cid",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "create_ad_slot",
+      "discriminator": [
+        84,
+        96,
+        90,
+        104,
+        188,
+        66,
+        237,
+        230
+      ],
+      "accounts": [
+        {
+          "name": "ad_slot",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "slot_id",
+          "type": "string"
+        },
+        {
+          "name": "price",
+          "type": "u64"
+        },
+        {
+          "name": "duration",
+          "type": "u64"
+        },
+        {
+          "name": "is_auction",
+          "type": "bool"
+        },
+        {
+          "name": "auction_end",
+          "type": "i64"
+        },
+        {
+          "name": "category",
+          "type": "string"
+        },
+        {
+          "name": "audience_size",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "deactivate_slot",
+      "discriminator": [
+        134,
+        227,
+        70,
+        134,
+        219,
+        185,
+        7,
+        225
+      ],
+      "accounts": [
+        {
+          "name": "ad_slot",
+          "writable": true
+        },
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "increment_view",
+      "discriminator": [
+        40,
+        245,
+        156,
+        180,
+        36,
+        179,
+        163,
+        229
+      ],
+      "accounts": [
+        {
+          "name": "ad_slot",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "place_bid",
+      "discriminator": [
+        238,
+        77,
+        148,
+        91,
+        200,
+        151,
+        92,
+        146
+      ],
+      "accounts": [
+        {
+          "name": "ad_slot",
+          "writable": true
+        },
+        {
+          "name": "bidder",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "bid_amount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Ad",
+      "discriminator": [
+        81,
+        91,
+        73,
+        106,
+        215,
+        137,
+        214,
+        47
+      ]
+    },
+    {
+      "name": "AdSlot",
+      "discriminator": [
+        144,
+        74,
+        20,
+        57,
+        15,
+        178,
+        12,
+        70
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "AdCreated",
+      "discriminator": [
+        248,
+        243,
+        176,
+        143,
+        45,
+        118,
+        189,
+        216
+      ]
+    },
+    {
+      "name": "AuctionClosed",
+      "discriminator": [
+        104,
+        72,
+        168,
+        177,
+        241,
+        79,
+        231,
+        167
+      ]
+    },
+    {
+      "name": "BidPlaced",
+      "discriminator": [
+        135,
+        53,
+        176,
+        83,
+        193,
+        69,
+        108,
+        61
+      ]
+    },
+    {
+      "name": "SlotCreated",
+      "discriminator": [
+        197,
+        65,
+        108,
+        214,
+        61,
+        146,
+        184,
+        122
+      ]
+    },
+    {
+      "name": "SlotPurchased",
+      "discriminator": [
+        45,
+        233,
+        55,
+        78,
+        82,
+        206,
+        170,
+        85
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidPurchaseType",
+      "msg": "Invalid purchase type"
+    },
+    {
+      "code": 6001,
+      "name": "SlotNotActive",
+      "msg": "Ad slot not active"
+    },
+    {
+      "code": 6002,
+      "name": "BidTooLow",
+      "msg": "Bid too low"
+    },
+    {
+      "code": 6003,
+      "name": "AuctionEnded",
+      "msg": "Auction has ended"
+    },
+    {
+      "code": 6004,
+      "name": "AuctionNotEnded",
+      "msg": "Auction has not ended"
+    },
+    {
+      "code": 6005,
+      "name": "Unauthorized",
+      "msg": "Unauthorized action"
+    }
+  ],
+  "types": [
+    {
+      "name": "Ad",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "ad_id",
+            "type": "string"
+          },
+          {
+            "name": "media_cid",
+            "type": "string"
+          },
+          {
+            "name": "slot_key",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AdCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "ad_id",
+            "type": "string"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AdSlot",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "slot_id",
+            "type": "string"
+          },
+          {
+            "name": "price",
+            "type": "u64"
+          },
+          {
+            "name": "duration",
+            "type": "u64"
+          },
+          {
+            "name": "is_auction",
+            "type": "bool"
+          },
+          {
+            "name": "auction_end",
+            "type": "i64"
+          },
+          {
+            "name": "highest_bid",
+            "type": "u64"
+          },
+          {
+            "name": "highest_bidder",
+            "type": "pubkey"
+          },
+          {
+            "name": "is_active",
+            "type": "bool"
+          },
+          {
+            "name": "view_count",
+            "type": "u64"
+          },
+          {
+            "name": "category",
+            "type": "string"
+          },
+          {
+            "name": "audience_size",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuctionClosed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "slot_id",
+            "type": "string"
+          },
+          {
+            "name": "winner",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BidPlaced",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "slot_id",
+            "type": "string"
+          },
+          {
+            "name": "bidder",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SlotCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "slot_id",
+            "type": "string"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SlotPurchased",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "slot_id",
+            "type": "string"
+          },
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          }
+        ]
+      }
+    }
+  ]
+}

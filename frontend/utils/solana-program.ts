@@ -1,57 +1,78 @@
 "use client";
 
-import { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL, Keypair } from '@solana/web3.js';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { Program, AnchorProvider, BN, web3 } from '@project-serum/anchor';
+import adMarketplaceIdl from '@/utils/ad_marketplace.json';
+import paymentsIdl from '@/utils/payments.json';
 
-// Mock program ID - in a real app, this would be the actual deployed program ID
-const PROGRAM_ID = new PublicKey('11111111111111111111111111111111');
+// Actual program IDs from the deployed smart contracts
+const AD_MARKETPLACE_PROGRAM_ID = new PublicKey('5JFj9EFPa45pycaUmR8GwdzNXjZqZQ5ZQ3n6ndhQPYse');
+const PAYMENTS_PROGRAM_ID = new PublicKey('7by1kwKb8JK1rLATnwtRFKvWjUqqV4HMQyFWa9UwVg8k');
+// We'll use the actual BN from @project-serum/anchor
 
-// BN implementation for browser
-class BN {
-  private value: number;
-  
-  constructor(value: number) {
-    this.value = value;
-  }
-  
-  toNumber(): number {
-    return this.value;
-  }
-  
-  toString(): string {
-    return this.value.toString();
-  }
-}
-
-// Mock program interfaces - in a real app, these would be generated from the IDL
+// Interfaces based on the actual IDL
 export interface AdSlot {
-  id: string;
-  publisher: PublicKey;
+  owner: PublicKey;
+  slot_id: string;
   price: BN;
   duration: BN;
-  purchaseType: 'fixed' | 'auction';
-  auctionEnd: BN | null;
+  is_auction: boolean;
+  auction_end: BN;
+  highest_bid: BN;
+  highest_bidder: PublicKey | null;
+  is_active: boolean;
+  view_count: BN;
   category: string;
-  audienceSize: BN;
-  active: boolean;
-  viewCount: BN;
-  currentBid?: BN;
-  highestBidder?: PublicKey;
+  audience_size: BN;
 }
 
 export interface Ad {
-  id: string;
-  advertiser: PublicKey;
-  slotId: string;
-  mediaCid: string;
-  active: boolean;
+  owner: PublicKey;
+  ad_id: string;
+  media_cid: string;
+  slot_key: PublicKey;
 }
 
-// Mock program - in a real app, this would be the actual program interface
+export interface Escrow {
+  amount: BN;
+  advertiser: PublicKey;
+  publisher: PublicKey;
+  is_released: boolean;
+}
+
+// Real program implementation using Anchor
 export const useAdProgram = () => {
   const wallet = useWallet();
+  const { connection } = useConnection();
   
-  // Mock functions for demonstration
+  // Get the ad marketplace program instance
+  const getAdMarketplaceProgram = () => {
+    if (!wallet || !connection) return null;
+    
+    const provider = new AnchorProvider(
+      connection, 
+      wallet as any, 
+      { commitment: 'processed' }
+    );
+    
+    return new Program(adMarketplaceIdl as any, AD_MARKETPLACE_PROGRAM_ID, provider);
+  };
+  
+  // Get the payments program instance
+  const getPaymentsProgram = () => {
+    if (!wallet || !connection) return null;
+    
+    const provider = new AnchorProvider(
+      connection, 
+      wallet as any, 
+      { commitment: 'processed' }
+    );
+    
+    return new Program(paymentsIdl as any, PAYMENTS_PROGRAM_ID, provider);
+  };
+  
+  // Create a new ad slot
   const createAdSlot = async (
     slotId: string,
     price: number,
@@ -66,21 +87,33 @@ export const useAdProgram = () => {
         throw new Error('Wallet not connected');
       }
       
-      // In a real app, this would call the actual program instruction
-      console.log('Creating ad slot with params:', {
-        slotId,
-        price,
-        duration,
-        purchaseType,
-        auctionEnd,
-        category,
-        audienceSize
-      });
+      const program = getAdMarketplaceProgram();
+      if (!program) throw new Error('Program not initialized');
       
-      // Simulate a successful transaction
+      const adSlot = Keypair.generate();
+      const isAuction = purchaseType === 'auction';
+      const auctionEndTimestamp = isAuction && auctionEnd ? auctionEnd : 0;
+      
+      const tx = await program.methods.createAdSlot(
+        slotId,
+        new BN(price),
+        new BN(duration),
+        isAuction,
+        new BN(auctionEndTimestamp),
+        category,
+        new BN(audienceSize)
+      )
+      .accounts({
+        adSlot: adSlot.publicKey,
+        owner: wallet.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([adSlot])
+      .rpc();
+      
       return {
         success: true,
-        signature: 'mock_signature_' + Math.random().toString(36).substring(2, 15)
+        signature: tx
       };
     } catch (error) {
       console.error('Error creating ad slot:', error);
@@ -88,19 +121,25 @@ export const useAdProgram = () => {
     }
   };
   
-  const deactivateSlot = async (slotId: string) => {
+  const deactivateSlot = async (slotPubkey: PublicKey) => {
     try {
       if (!wallet.publicKey || !wallet.signTransaction) {
         throw new Error('Wallet not connected');
       }
       
-      // In a real app, this would call the actual program instruction
-      console.log('Deactivating slot:', slotId);
+      const program = getAdMarketplaceProgram();
+      if (!program) throw new Error('Program not initialized');
       
-      // Simulate a successful transaction
+      const tx = await program.methods.deactivateSlot()
+        .accounts({
+          adSlot: slotPubkey,
+          owner: wallet.publicKey,
+        })
+        .rpc();
+      
       return {
         success: true,
-        signature: 'mock_signature_' + Math.random().toString(36).substring(2, 15)
+        signature: tx
       };
     } catch (error) {
       console.error('Error deactivating slot:', error);
@@ -114,50 +153,39 @@ export const useAdProgram = () => {
         return [];
       }
       
-      // In a real app, this would fetch actual program accounts
-      // For now, we'll return mock data
-      const mockSlots: AdSlot[] = [
-        {
-          id: 'slot-1',
-          publisher: wallet.publicKey,
-          price: new BN(1 * LAMPORTS_PER_SOL), // 1 SOL
-          duration: new BN(86400), // 1 day in seconds
-          purchaseType: 'fixed',
-          auctionEnd: null,
-          category: 'tech',
-          audienceSize: new BN(10000),
-          active: true,
-          viewCount: new BN(1234)
-        },
-        {
-          id: 'slot-2',
-          publisher: wallet.publicKey,
-          price: new BN(2 * LAMPORTS_PER_SOL), // 2 SOL
-          duration: new BN(172800), // 2 days in seconds
-          purchaseType: 'auction',
-          auctionEnd: new BN(Date.now() / 1000 + 86400), // 1 day from now
-          category: 'gaming',
-          audienceSize: new BN(5000),
-          active: true,
-          viewCount: new BN(567),
-          currentBid: new BN(1.5 * LAMPORTS_PER_SOL),
-          highestBidder: new PublicKey('8765gfds...') // Mock public key
-        },
-        {
-          id: 'slot-3',
-          publisher: wallet.publicKey,
-          price: new BN(0.5 * LAMPORTS_PER_SOL), // 0.5 SOL
-          duration: new BN(43200), // 12 hours in seconds
-          purchaseType: 'fixed',
-          auctionEnd: null,
-          category: 'finance',
-          audienceSize: new BN(3000),
-          active: false,
-          viewCount: new BN(789)
-        }
-      ];
+      const program = getAdMarketplaceProgram();
+      if (!program) return [];
       
-      return mockSlots;
+      // Fetch all ad slot accounts owned by this publisher
+      const slotAccounts = await program.account.adSlot.all([
+        {
+          memcmp: {
+            offset: 8, // After the account discriminator
+            bytes: wallet.publicKey.toBase58() // Filter by owner
+          }
+        }
+      ]);
+      
+      // Transform the accounts to our AdSlot interface
+      return slotAccounts.map(account => {
+        // Cast to any to avoid TypeScript errors with dynamic properties
+        const data = account.account as any;
+        return {
+          publicKey: account.publicKey,
+          owner: data.owner,
+          slot_id: data.slot_id,
+          price: data.price,
+          duration: data.duration,
+          is_auction: data.is_auction,
+          auction_end: data.auction_end,
+          highest_bid: data.highest_bid,
+          highest_bidder: data.highest_bidder,
+          is_active: data.is_active,
+          view_count: data.view_count,
+          category: data.category,
+          audience_size: data.audience_size
+        };
+      });
     } catch (error) {
       console.error('Error fetching publisher slots:', error);
       return [];
@@ -167,76 +195,38 @@ export const useAdProgram = () => {
   // Get all available ad slots for advertisers
   const getAllSlots = async () => {
     try {
-      // In a real app, this would fetch all active slots from the program
-      // For now, we'll return mock data
-      const mockSlots: AdSlot[] = [
-        {
-          id: 'slot-1',
-          publisher: new PublicKey('123456...'), // Mock publisher
-          price: new BN(1 * LAMPORTS_PER_SOL), // 1 SOL
-          duration: new BN(86400), // 1 day in seconds
-          purchaseType: 'fixed',
-          auctionEnd: null,
-          category: 'tech',
-          audienceSize: new BN(10000),
-          active: true,
-          viewCount: new BN(1234)
-        },
-        {
-          id: 'slot-2',
-          publisher: new PublicKey('234567...'), // Mock publisher
-          price: new BN(2 * LAMPORTS_PER_SOL), // 2 SOL
-          duration: new BN(172800), // 2 days in seconds
-          purchaseType: 'auction',
-          auctionEnd: new BN(Date.now() / 1000 + 86400), // 1 day from now
-          category: 'gaming',
-          audienceSize: new BN(5000),
-          active: true,
-          viewCount: new BN(567),
-          currentBid: new BN(1.5 * LAMPORTS_PER_SOL),
-          highestBidder: new PublicKey('8765gfds...') // Mock public key
-        },
-        {
-          id: 'slot-3',
-          publisher: new PublicKey('345678...'), // Mock publisher
-          price: new BN(0.5 * LAMPORTS_PER_SOL), // 0.5 SOL
-          duration: new BN(43200), // 12 hours in seconds
-          purchaseType: 'fixed',
-          auctionEnd: null,
-          category: 'finance',
-          audienceSize: new BN(3000),
-          active: true,
-          viewCount: new BN(789)
-        },
-        {
-          id: 'slot-4',
-          publisher: new PublicKey('456789...'), // Mock publisher
-          price: new BN(3 * LAMPORTS_PER_SOL), // 3 SOL
-          duration: new BN(259200), // 3 days in seconds
-          purchaseType: 'auction',
-          auctionEnd: new BN(Date.now() / 1000 + 172800), // 2 days from now
-          category: 'health',
-          audienceSize: new BN(8000),
-          active: true,
-          viewCount: new BN(321),
-          currentBid: new BN(2.2 * LAMPORTS_PER_SOL),
-          highestBidder: new PublicKey('9876gfds...') // Mock public key
-        },
-        {
-          id: 'slot-5',
-          publisher: new PublicKey('567890...'), // Mock publisher
-          price: new BN(1.5 * LAMPORTS_PER_SOL), // 1.5 SOL
-          duration: new BN(129600), // 1.5 days in seconds
-          purchaseType: 'fixed',
-          auctionEnd: null,
-          category: 'education',
-          audienceSize: new BN(15000),
-          active: true,
-          viewCount: new BN(4567)
-        }
-      ];
+      const program = getAdMarketplaceProgram();
+      if (!program) return [];
       
-      return mockSlots;
+      // Fetch all active ad slot accounts
+      const slotAccounts = await program.account.adSlot.all();
+      
+      // Filter for active slots
+      const activeSlots = slotAccounts.filter(account => {
+        const data = account.account as any;
+        return data && data.isActive === true;
+      });
+      
+      // Transform the accounts to our AdSlot interface
+      return activeSlots.map(account => {
+        // Cast to any to avoid TypeScript errors with dynamic properties
+        const data = account.account as any;
+        return {
+          publicKey: account.publicKey,
+          owner: data.owner,
+          slot_id: data.slotId,
+          price: data.price,
+          duration: data.duration,
+          is_auction: data.isAuction,
+          auction_end: data.auctionEnd,
+          highest_bid: data.highestBid,
+          highest_bidder: data.highestBidder,
+          is_active: data.isActive,
+          view_count: data.viewCount,
+          category: data.category,
+          audience_size: data.audienceSize
+        };
+      });
     } catch (error) {
       console.error('Error fetching all slots:', error);
       return [];
@@ -250,17 +240,27 @@ export const useAdProgram = () => {
         throw new Error('Wallet not connected');
       }
       
-      // In a real app, this would call the actual program instruction
-      console.log('Creating ad with params:', {
+      const program = getAdMarketplaceProgram();
+      if (!program) throw new Error('Program not initialized');
+      
+      const ad = Keypair.generate();
+      
+      const tx = await program.methods.createAd(
         adId,
         slotId,
         mediaCid
-      });
+      )
+      .accounts({
+        ad: ad.publicKey,
+        advertiser: wallet.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([ad])
+      .rpc();
       
-      // Simulate a successful transaction
       return {
         success: true,
-        signature: 'mock_signature_' + Math.random().toString(36).substring(2, 15)
+        signature: tx
       };
     } catch (error) {
       console.error('Error creating ad:', error);
@@ -275,16 +275,35 @@ export const useAdProgram = () => {
         throw new Error('Wallet not connected');
       }
       
-      // In a real app, this would call the actual program instruction
-      console.log('Buying fixed-price slot:', {
-        slotId,
-        price
+      const program = getAdMarketplaceProgram();
+      if (!program) throw new Error('Program not initialized');
+      
+      // Find the slot account by ID
+      const slotAccounts = await program.account.adSlot.all();
+      
+      // Filter by slot ID
+      const filteredSlots = slotAccounts.filter(account => {
+        const data = account.account as any;
+        return data.slotId === slotId;
       });
       
-      // Simulate a successful transaction
+      if (filteredSlots.length === 0) {
+        throw new Error(`Slot with ID ${slotId} not found`);
+      }
+      
+      const slotAccount = filteredSlots[0];
+      
+      const tx = await program.methods.buyFixedPriceSlot()
+        .accounts({
+          adSlot: slotAccount.publicKey,
+          buyer: wallet.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .rpc();
+      
       return {
         success: true,
-        signature: 'mock_signature_' + Math.random().toString(36).substring(2, 15)
+        signature: tx
       };
     } catch (error) {
       console.error('Error buying fixed-price slot:', error);
@@ -299,16 +318,37 @@ export const useAdProgram = () => {
         throw new Error('Wallet not connected');
       }
       
-      // In a real app, this would call the actual program instruction
-      console.log('Placing bid on slot:', {
-        slotId,
-        bidAmount
+      const program = getAdMarketplaceProgram();
+      if (!program) throw new Error('Program not initialized');
+      
+      // Find the slot account by ID
+      const slotAccounts = await program.account.adSlot.all();
+      
+      // Filter by slot ID
+      const filteredSlots = slotAccounts.filter(account => {
+        const data = account.account as any;
+        return data.slotId === slotId;
       });
       
-      // Simulate a successful transaction
+      if (filteredSlots.length === 0) {
+        throw new Error(`Slot with ID ${slotId} not found`);
+      }
+      
+      const slotAccount = filteredSlots[0];
+      
+      const tx = await program.methods.placeBid(
+        new BN(bidAmount * LAMPORTS_PER_SOL)
+      )
+        .accounts({
+          adSlot: slotAccount.publicKey,
+          bidder: wallet.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .rpc();
+      
       return {
         success: true,
-        signature: 'mock_signature_' + Math.random().toString(36).substring(2, 15)
+        signature: tx
       };
     } catch (error) {
       console.error('Error placing bid:', error);
@@ -323,40 +363,216 @@ export const useAdProgram = () => {
         return [];
       }
       
-      // In a real app, this would fetch actual program accounts
-      // For now, we'll return mock data
-      const mockAds: Ad[] = [
-        {
-          id: 'ad-1',
-          advertiser: wallet.publicKey,
-          slotId: 'slot-1',
-          mediaCid: 'Qm123456789abcdef',
-          active: true
-        },
-        {
-          id: 'ad-2',
-          advertiser: wallet.publicKey,
-          slotId: 'slot-3',
-          mediaCid: 'Qm987654321fedcba',
-          active: true
-        }
-      ];
+      const program = getAdMarketplaceProgram();
+      if (!program) return [];
       
-      return mockAds;
+      // Fetch all ad accounts for this advertiser
+      const adAccounts = await program.account.ad.all();
+      
+      // Filter by advertiser
+      const filteredAds = adAccounts.filter(account => {
+        const data = account.account as any;
+        return data && wallet.publicKey && data.advertiser && 
+               data.advertiser.toString() === wallet.publicKey.toString();
+      });
+      
+      // Transform the accounts to our Ad interface
+      return filteredAds.map(account => {
+        const data = account.account as any;
+        return {
+          id: data.adId,
+          advertiser: data.advertiser,
+          slotId: data.slotId,
+          mediaCid: data.mediaCid,
+          active: data.isActive
+        };
+      });
     } catch (error) {
       console.error('Error fetching advertiser ads:', error);
       return [];
     }
   };
   
+  // Close an auction that has ended
+  const closeAuction = async (slotPubkey: PublicKey) => {
+    try {
+      if (!wallet.publicKey || !wallet.signTransaction) {
+        throw new Error('Wallet not connected');
+      }
+      
+      const program = getAdMarketplaceProgram();
+      if (!program) throw new Error('Program not initialized');
+      
+      const tx = await program.methods.closeAuction()
+        .accounts({
+          adSlot: slotPubkey,
+        })
+        .rpc();
+      
+      return {
+        success: true,
+        signature: tx
+      };
+    } catch (error) {
+      console.error('Error closing auction:', error);
+      throw error;
+    }
+  };
+  
+  // Increment view count for an ad slot
+  const incrementView = async (slotPubkey: PublicKey) => {
+    try {
+      const program = getAdMarketplaceProgram();
+      if (!program) throw new Error('Program not initialized');
+      
+      const tx = await program.methods.incrementView()
+        .accounts({
+          adSlot: slotPubkey,
+        })
+        .rpc();
+      
+      return {
+        success: true,
+        signature: tx
+      };
+    } catch (error) {
+      console.error('Error incrementing view:', error);
+      throw error;
+    }
+  };
+  
+  // Create an escrow payment for an ad slot
+  const createEscrowPayment = async (adSlotPublicKey: PublicKey, amount: number) => {
+    try {
+      if (!wallet.publicKey || !wallet.signTransaction) {
+        throw new Error('Wallet not connected');
+      }
+      
+      const program = getPaymentsProgram();
+      if (!program) throw new Error('Program not initialized');
+      
+      // Calculate the escrow PDA
+      const [escrowPDA] = await PublicKey.findProgramAddress(
+        [
+          Buffer.from('escrow'),
+          wallet.publicKey.toBuffer(),
+          adSlotPublicKey.toBuffer()
+        ],
+        PAYMENTS_PROGRAM_ID
+      );
+      
+      const tx = await program.methods.escrowPayment(
+        new BN(amount * LAMPORTS_PER_SOL)
+      )
+      .accounts({
+        escrow: escrowPDA,
+        advertiser: wallet.publicKey,
+        adSlot: adSlotPublicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .rpc();
+      
+      return {
+        success: true,
+        signature: tx
+      };
+    } catch (error) {
+      console.error('Error creating escrow payment:', error);
+      throw error;
+    }
+  };
+  
+  // Release escrow payment to publisher
+  const releaseEscrowPayment = async (adSlotPublicKey: PublicKey, publisherPublicKey: PublicKey) => {
+    try {
+      if (!wallet.publicKey || !wallet.signTransaction) {
+        throw new Error('Wallet not connected');
+      }
+      
+      const program = getPaymentsProgram();
+      if (!program) throw new Error('Program not initialized');
+      
+      // Calculate the escrow PDA
+      const [escrowPDA] = await PublicKey.findProgramAddress(
+        [
+          Buffer.from('escrow'),
+          wallet.publicKey.toBuffer(),
+          adSlotPublicKey.toBuffer()
+        ],
+        PAYMENTS_PROGRAM_ID
+      );
+      
+      const tx = await program.methods.releaseEscrow()
+      .accounts({
+        escrow: escrowPDA,
+        publisher: publisherPublicKey,
+        adSlot: adSlotPublicKey,
+        authority: wallet.publicKey,
+      })
+      .rpc();
+      
+      return {
+        success: true,
+        signature: tx
+      };
+    } catch (error) {
+      console.error('Error releasing escrow payment:', error);
+      throw error;
+    }
+  };
+  
+  // Refund escrow payment to advertiser
+  const refundEscrowPayment = async (adSlotPublicKey: PublicKey) => {
+    try {
+      if (!wallet.publicKey || !wallet.signTransaction) {
+        throw new Error('Wallet not connected');
+      }
+      
+      const program = getPaymentsProgram();
+      if (!program) throw new Error('Program not initialized');
+      
+      // Calculate the escrow PDA
+      const [escrowPDA] = await PublicKey.findProgramAddress(
+        [
+          Buffer.from('escrow'),
+          wallet.publicKey.toBuffer(),
+          adSlotPublicKey.toBuffer()
+        ],
+        PAYMENTS_PROGRAM_ID
+      );
+      
+      const tx = await program.methods.refundEscrow()
+      .accounts({
+        escrow: escrowPDA,
+        advertiser: wallet.publicKey,
+        adSlot: adSlotPublicKey,
+        authority: wallet.publicKey,
+      })
+      .rpc();
+      
+      return {
+        success: true,
+        signature: tx
+      };
+    } catch (error) {
+      console.error('Error refunding escrow payment:', error);
+      throw error;
+    }
+  };
+  
   return {
     createAdSlot,
     deactivateSlot,
+    closeAuction,
+    incrementView,
     getPublisherSlots,
     getAllSlots,
     createAd,
     buyFixedPriceSlot,
     placeBid,
-    getAdvertiserAds
+    getAdvertiserAds,
+    createEscrowPayment,
+    releaseEscrowPayment,
+    refundEscrowPayment
   };
 };

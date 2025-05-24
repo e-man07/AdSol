@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { Loader2 } from 'lucide-react';
 
 // Form schema with validation
 const formSchema = z.object({
@@ -89,6 +90,9 @@ export const AdSlotForm: FC<AdSlotFormProps> = ({ onSuccess }) => {
         return;
       }
       
+      // Show a toast notification that the transaction is being processed
+      toast.loading('Creating ad slot... Please approve the transaction in your wallet');
+      
       // Call the program to create the ad slot
       const result = await createAdSlot(
         data.slotId,
@@ -114,8 +118,8 @@ export const AdSlotForm: FC<AdSlotFormProps> = ({ onSuccess }) => {
   };
   
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h2 className="text-xl font-bold mb-6 text-white">Create New Ad Slot</h2>
+    <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
+      <h2 className="text-xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent">Create New Ad Slot</h2>
       
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -246,10 +250,17 @@ export const AdSlotForm: FC<AdSlotFormProps> = ({ onSuccess }) => {
         <div className="pt-4">
           <Button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
             disabled={!connected || isSubmitting}
           >
-            {isSubmitting ? 'Creating...' : 'Create Ad Slot'}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              'Create Ad Slot'
+            )}
           </Button>
           
           {!connected && (
