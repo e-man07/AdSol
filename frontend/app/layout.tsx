@@ -1,6 +1,9 @@
 import type React from "react"
 import "@/app/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import WalletContextProvider from "@/contexts/WalletContext"
+import RoleProvider from "@/contexts/RoleContext"
+import Header from "@/components/Header"
 
 export default function RootLayout({
   children,
@@ -18,7 +21,14 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          {children}
+          <WalletContextProvider>
+            <RoleProvider>
+              <Header />
+              <main className="pt-16">
+                {children}
+              </main>
+            </RoleProvider>
+          </WalletContextProvider>
         </ThemeProvider>
       </body>
     </html>

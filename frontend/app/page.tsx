@@ -15,6 +15,8 @@ import {
   Sparkles,
   Coins,
 } from "lucide-react"
+import { useWallet } from "@solana/wallet-adapter-react"
+import WalletButton from "@/components/ui/wallet-button"
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
@@ -104,7 +106,9 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Button className="hidden md:flex bg-white text-black hover:bg-gray-200 border-none">Connect Wallet</Button>
+            <div className="hidden md:block">
+              <WalletButton />
+            </div>
 
             <button className="md:hidden text-white" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               <svg
