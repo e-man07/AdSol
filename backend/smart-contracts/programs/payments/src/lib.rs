@@ -23,6 +23,10 @@ declare_id!("7by1kwKb8JK1rLATnwtRFKvWjUqqV4HMQyFWa9UwVg8k");
 pub mod payments {
     use super::*;
 
+    // for advertiser
+    // escrow holding the payment
+    // advertiser will pay for the ad, that'll go to escrow
+    // based on the performance/outcome of ads, the escrow will release the payment to publisher
     pub fn escrow_payment(ctx: Context<EscrowPayment>, amount: u64) -> Result<()> {
         let escrow = &mut ctx.accounts.escrow;
         
@@ -60,6 +64,7 @@ pub mod payments {
         Ok(())
     }
 
+    // escrow will release based on parameters
     pub fn release_escrow(ctx: Context<ReleaseEscrow>) -> Result<()> {
         // Get keys before mutable borrow
         let escrow_key = ctx.accounts.escrow.key();
@@ -92,6 +97,7 @@ pub mod payments {
         Ok(())
     }
 
+    // refund to advertiser if something goes wrong
     pub fn refund_escrow(ctx: Context<RefundEscrow>) -> Result<()> {
         // Get keys before mutable borrow
         let escrow_key = ctx.accounts.escrow.key();

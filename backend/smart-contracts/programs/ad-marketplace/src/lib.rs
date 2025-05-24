@@ -11,6 +11,7 @@ pub mod ad_marketplace_structs {
 pub mod ad_marketplace {
     use super::*;
 
+    // for publisher
     pub fn create_ad_slot(
         ctx: Context<CreateAdSlot>,
         slot_id: String,
@@ -42,6 +43,7 @@ pub mod ad_marketplace {
         Ok(())
     }
 
+    // for advertiser
     pub fn create_ad(
         ctx: Context<CreateAd>,
         ad_id: String,
@@ -60,6 +62,8 @@ pub mod ad_marketplace {
         Ok(())
     }
 
+    // for advertiser
+    // publisher will define if the slot will be fixed price or auction
     pub fn buy_fixed_price(ctx: Context<BuyFixedPrice>) -> Result<()> {
         let ad_slot = &mut ctx.accounts.ad_slot;
         require!(!ad_slot.is_auction, ErrorCode::InvalidPurchaseType);
@@ -75,6 +79,8 @@ pub mod ad_marketplace {
         Ok(())
     }
 
+    // for advertiser
+    // publisher will define if the slot will be fixed price or auction
     pub fn place_bid(ctx: Context<PlaceBid>, bid_amount: u64) -> Result<()> {
         let ad_slot = &mut ctx.accounts.ad_slot;
         let clock = Clock::get()?;
@@ -95,6 +101,7 @@ pub mod ad_marketplace {
         Ok(())
     }
 
+    // for publisher
     pub fn close_auction(ctx: Context<CloseAuction>) -> Result<()> {
         let ad_slot = &mut ctx.accounts.ad_slot;
         let clock = Clock::get()?;
@@ -111,6 +118,7 @@ pub mod ad_marketplace {
         Ok(())
     }
 
+    // for publisher
     pub fn deactivate_slot(ctx: Context<DeactivateSlot>) -> Result<()> {
         let ad_slot = &mut ctx.accounts.ad_slot;
         
@@ -121,6 +129,8 @@ pub mod ad_marketplace {
         Ok(())
     }
 
+    // no role of publisher/advertiser
+    // called by the user who is viewing the ad
     pub fn increment_view(ctx: Context<IncrementView>) -> Result<()> {
         let ad_slot = &mut ctx.accounts.ad_slot;
         ad_slot.view_count += 1;
