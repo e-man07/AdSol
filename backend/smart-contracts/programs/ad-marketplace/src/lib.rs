@@ -2,6 +2,11 @@ use anchor_lang::prelude::*;
 
 declare_id!("5JFj9EFPa45pycaUmR8GwdzNXjZqZQ5ZQ3n6ndhQPYse");
 
+const MAX_SLOT_ID_LENGTH: usize = 50;
+const MAX_CATEGORY_LENGTH: usize = 50;
+const MAX_AD_ID_LENGTH: usize = 50;
+const MAX_MEDIA_CID_LENGTH: usize = 100;
+
 // Export the AdSlot struct for other programs to use
 pub mod ad_marketplace_structs {
     pub use super::AdSlot;
@@ -170,7 +175,7 @@ pub struct CreateAdSlot<'info> {
         payer = owner,
         space = 8 + // discriminator
                 32 + // owner
-                4 + slot_id.len() + // slot_id
+                4 + MAX_SLOT_ID_LENGTH + // slot_id with max length
                 8 + // price
                 8 + // duration
                 1 + // is_auction
@@ -179,7 +184,7 @@ pub struct CreateAdSlot<'info> {
                 32 + // highest_bidder
                 1 + // is_active
                 8 + // view_count
-                4 + category.len() + // category
+                4 + MAX_CATEGORY_LENGTH + // category with max length
                 8 // audience_size
     )]
     pub ad_slot: Account<'info, AdSlot>,
@@ -196,8 +201,8 @@ pub struct CreateAd<'info> {
         payer = owner,
         space = 8 + // discriminator
                 32 + // owner
-                4 + ad_id.len() + // ad_id
-                4 + media_cid.len() + // media_cid
+                4 + MAX_AD_ID_LENGTH + // ad_id with max length
+                4 + MAX_MEDIA_CID_LENGTH + // media_cid with max length
                 32 // slot_key
     )]
     pub ad: Account<'info, Ad>,

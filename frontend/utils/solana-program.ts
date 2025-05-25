@@ -1,48 +1,18 @@
 "use client";
 
-import { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL, Keypair } from '@solana/web3.js';
-import { useWallet, useConnection } from '@solana/wallet-adapter-react';
-import { Program, AnchorProvider, BN, web3 } from '@project-serum/anchor';
+import { useAnchorWallet, useConnection } from '@solana/wallet-adapter-react';
+import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram } from '@solana/web3.js';
+import { AnchorProvider, BN, Program, setProvider, web3 } from "@coral-xyz/anchor";
+import type { AdMarketplace } from './ad_marketplace';
 import adMarketplaceIDL from './ad_marketplace.json';
+import type { Payments } from './payments';
 import paymentsIDL from './payments.json';
 
 // Actual program IDs from the deployed smart contracts
-const AD_MARKETPLACE_PROGRAM_ID = new PublicKey('5JFj9EFPa45pycaUmR8GwdzNXjZqZQ5ZQ3n6ndhQPYse');
 const PAYMENTS_PROGRAM_ID = new PublicKey('7by1kwKb8JK1rLATnwtRFKvWjUqqV4HMQyFWa9UwVg8k');
 
-// Type definitions for account data
-interface AdSlotAccount {
-  owner: PublicKey;
-  slot_id: string;
-  price: BN;
-  duration: BN;
-  is_auction: boolean;
-  auction_end: BN;
-  highest_bid: BN;
-  highest_bidder: PublicKey;
-  is_active: boolean;
-  view_count: BN;
-  category: string;
-  audience_size: BN;
-}
-
-interface AdAccount {
-  owner: PublicKey;
-  ad_id: string;
-  media_cid: string;
-  slot_key: PublicKey;
-}
-
-interface EscrowAccount {
-  amount: BN;
-  advertiser: PublicKey;
-  publisher: PublicKey;
-  is_released: boolean;
-}
-
-// Real program implementation using Anchor
 export const useAdProgram = () => {
-  const wallet = useWallet();
+  const wallet = useAnchorWallet();
   const { connection } = useConnection();
   
   // Get the ad marketplace program instance
@@ -59,12 +29,15 @@ export const useAdProgram = () => {
     
     const provider = new AnchorProvider(
       connection, 
-      wallet as any, 
-      { commitment: 'processed' }
+      wallet, 
+      { commitment: 'confirmed' }
     );
+    setProvider(provider);
     
     try {      
-      return new Program(adMarketplaceIDL as any, AD_MARKETPLACE_PROGRAM_ID, provider);
+      const program = new Program(adMarketplaceIDL as AdMarketplace);
+      console.log('Ad marketplace program initialized:', program);
+      return program;
     } catch (error) {
       console.error("Error initializing ad marketplace program:", error);
       console.error("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
@@ -86,12 +59,13 @@ export const useAdProgram = () => {
     
     const provider = new AnchorProvider(
       connection, 
-      wallet as any, 
-      { commitment: 'processed' }
+      wallet, 
+      { commitment: 'confirmed' }
     );
+    setProvider(provider);
     
     try {      
-      return new Program(paymentsIDL as any, PAYMENTS_PROGRAM_ID, provider);
+      return new Program(paymentsIDL as Payments);
     } catch (error) {
       console.error("Error initializing payments program:", error);
       console.error("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
@@ -110,7 +84,7 @@ export const useAdProgram = () => {
     audienceSize: number
   ) => {
     try {
-      if (!wallet.publicKey || !wallet.signTransaction) {
+      if (!wallet ||!wallet.publicKey || !wallet.signTransaction) {
         throw new Error('Wallet not connected');
       }
       
@@ -176,7 +150,7 @@ export const useAdProgram = () => {
   
   const deactivateSlot = async (slotPubkey: PublicKey) => {
     try {
-      if (!wallet.publicKey || !wallet.signTransaction) {
+      if (!wallet || !wallet.publicKey || !wallet.signTransaction) {
         throw new Error('Wallet not connected');
       }
       
@@ -202,7 +176,7 @@ export const useAdProgram = () => {
   
   const getPublisherSlots = async () => {
     try {
-      if (!wallet.publicKey) {
+      if (!wallet || !wallet.publicKey) {
         return [];
       }
       
@@ -220,7 +194,7 @@ export const useAdProgram = () => {
       ]);
       
       // Transform the accounts to our AdSlot interface
-      return slotAccounts.map(account => {
+      return slotAccounts.map((account: { account: any; publicKey: any; }) => {
         // Cast to any to avoid TypeScript errors with dynamic properties
         const data = account.account as any;
         return {
@@ -255,13 +229,13 @@ export const useAdProgram = () => {
       const slotAccounts = await program.account.adSlot.all();
       
       // Filter for active slots
-      const activeSlots = slotAccounts.filter(account => {
+      const activeSlots = slotAccounts.filter((account: { account: any; }) => {
         const data = account.account as any;
         return data && data.isActive === true;
       });
       
       // Transform the accounts to our AdSlot interface
-      return activeSlots.map(account => {
+      return activeSlots.map((account: { account: any; publicKey: any; }) => {
         // Cast to any to avoid TypeScript errors with dynamic properties
         const data = account.account as any;
         return {
@@ -289,7 +263,7 @@ export const useAdProgram = () => {
   // Create a new ad
   const createAd = async (adId: string, slotId: string, mediaCid: string) => {
     try {
-      if (!wallet.publicKey || !wallet.signTransaction) {
+      if (!wallet || !wallet.publicKey || !wallet.signTransaction) {
         throw new Error('Wallet not connected');
       }
       
@@ -324,7 +298,7 @@ export const useAdProgram = () => {
   // Buy a fixed-price slot
   const buyFixedPriceSlot = async (slotId: string, price: number) => {
     try {
-      if (!wallet.publicKey || !wallet.signTransaction) {
+      if (!wallet || !wallet.publicKey || !wallet.signTransaction) {
         throw new Error('Wallet not connected');
       }
       
@@ -335,7 +309,7 @@ export const useAdProgram = () => {
       const slotAccounts = await program.account.adSlot.all();
       
       // Filter by slot ID
-      const filteredSlots = slotAccounts.filter(account => {
+      const filteredSlots = slotAccounts.filter((account: { account: any; }) => {
         const data = account.account as any;
         return data.slotId === slotId;
       });
@@ -367,7 +341,7 @@ export const useAdProgram = () => {
   // Place a bid on an auction slot
   const placeBid = async (slotId: string, bidAmount: number) => {
     try {
-      if (!wallet.publicKey || !wallet.signTransaction) {
+      if (!wallet || !wallet.publicKey || !wallet.signTransaction) {
         throw new Error('Wallet not connected');
       }
       
@@ -378,7 +352,7 @@ export const useAdProgram = () => {
       const slotAccounts = await program.account.adSlot.all();
       
       // Filter by slot ID
-      const filteredSlots = slotAccounts.filter(account => {
+      const filteredSlots = slotAccounts.filter((account: { account: any; }) => {
         const data = account.account as any;
         return data.slotId === slotId;
       });
@@ -412,7 +386,7 @@ export const useAdProgram = () => {
   // Get advertiser's ads
   const getAdvertiserAds = async () => {
     try {
-      if (!wallet.publicKey) {
+      if (!wallet || !wallet.publicKey) {
         return [];
       }
       
@@ -423,14 +397,14 @@ export const useAdProgram = () => {
       const adAccounts = await program.account.ad.all();
       
       // Filter by advertiser
-      const filteredAds = adAccounts.filter(account => {
+      const filteredAds = adAccounts.filter((account: { account: any; }) => {
         const data = account.account as any;
         return data && wallet.publicKey && data.advertiser && 
                data.advertiser.toString() === wallet.publicKey.toString();
       });
       
       // Transform the accounts to our Ad interface
-      return filteredAds.map(account => {
+      return filteredAds.map((account: { account: any; }) => {
         const data = account.account as any;
         return {
           id: data.adId,
@@ -449,7 +423,7 @@ export const useAdProgram = () => {
   // Close an auction that has ended
   const closeAuction = async (slotPubkey: PublicKey) => {
     try {
-      if (!wallet.publicKey || !wallet.signTransaction) {
+      if (!wallet || !wallet.publicKey || !wallet.signTransaction) {
         throw new Error('Wallet not connected');
       }
       
@@ -497,7 +471,7 @@ export const useAdProgram = () => {
   // Create an escrow payment for an ad slot
   const createEscrowPayment = async (adSlotPublicKey: PublicKey, amount: number) => {
     try {
-      if (!wallet.publicKey || !wallet.signTransaction) {
+      if (!wallet || !wallet.publicKey || !wallet.signTransaction) {
         throw new Error('Wallet not connected');
       }
       
@@ -538,7 +512,7 @@ export const useAdProgram = () => {
   // Release escrow payment to publisher
   const releaseEscrowPayment = async (adSlotPublicKey: PublicKey, publisherPublicKey: PublicKey) => {
     try {
-      if (!wallet.publicKey || !wallet.signTransaction) {
+      if (!wallet || !wallet.publicKey || !wallet.signTransaction) {
         throw new Error('Wallet not connected');
       }
       
@@ -577,7 +551,7 @@ export const useAdProgram = () => {
   // Refund escrow payment to advertiser
   const refundEscrowPayment = async (adSlotPublicKey: PublicKey) => {
     try {
-      if (!wallet.publicKey || !wallet.signTransaction) {
+      if (!wallet || !wallet.publicKey || !wallet.signTransaction) {
         throw new Error('Wallet not connected');
       }
       
