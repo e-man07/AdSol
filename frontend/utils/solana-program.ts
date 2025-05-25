@@ -3,16 +3,15 @@
 import { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL, Keypair } from '@solana/web3.js';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { Program, AnchorProvider, BN, web3 } from '@project-serum/anchor';
-import ad_marketplace from './ad_marketplace.json';
-import payments from './payments.json';
+import adMarketplaceIDL from './ad_marketplace.json';
+import paymentsIDL from './payments.json';
 
 // Actual program IDs from the deployed smart contracts
 const AD_MARKETPLACE_PROGRAM_ID = new PublicKey('5JFj9EFPa45pycaUmR8GwdzNXjZqZQ5ZQ3n6ndhQPYse');
 const PAYMENTS_PROGRAM_ID = new PublicKey('7by1kwKb8JK1rLATnwtRFKvWjUqqV4HMQyFWa9UwVg8k');
-// We'll use the actual BN from @project-serum/anchor
 
-// Interfaces based on the actual IDL
-export interface AdSlot {
+// Type definitions for account data
+interface AdSlotAccount {
   owner: PublicKey;
   slot_id: string;
   price: BN;
@@ -20,21 +19,21 @@ export interface AdSlot {
   is_auction: boolean;
   auction_end: BN;
   highest_bid: BN;
-  highest_bidder: PublicKey | null;
+  highest_bidder: PublicKey;
   is_active: boolean;
   view_count: BN;
   category: string;
   audience_size: BN;
 }
 
-export interface Ad {
+interface AdAccount {
   owner: PublicKey;
   ad_id: string;
   media_cid: string;
   slot_key: PublicKey;
 }
 
-export interface Escrow {
+interface EscrowAccount {
   amount: BN;
   advertiser: PublicKey;
   publisher: PublicKey;
@@ -65,7 +64,7 @@ export const useAdProgram = () => {
     );
     
     try {      
-      return new Program(ad_marketplace as any, AD_MARKETPLACE_PROGRAM_ID, provider);
+      return new Program(adMarketplaceIDL as any, AD_MARKETPLACE_PROGRAM_ID, provider);
     } catch (error) {
       console.error("Error initializing ad marketplace program:", error);
       console.error("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
@@ -92,7 +91,7 @@ export const useAdProgram = () => {
     );
     
     try {      
-      return new Program(payments as any, PAYMENTS_PROGRAM_ID, provider);
+      return new Program(paymentsIDL as any, PAYMENTS_PROGRAM_ID, provider);
     } catch (error) {
       console.error("Error initializing payments program:", error);
       console.error("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
