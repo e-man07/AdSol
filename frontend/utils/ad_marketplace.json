@@ -1,5 +1,5 @@
 {
-  "address": "5JFj9EFPa45pycaUmR8GwdzNXjZqZQ5ZQ3n6ndhQPYse",
+  "address": "3jkjToSBTNwBruFHv5JeJKoNTDLRahmuUmSQMAaddrVY",
   "metadata": {
     "name": "ad_marketplace",
     "version": "0.1.0",
@@ -9,16 +9,7 @@
   "instructions": [
     {
       "name": "buy_fixed_price",
-      "discriminator": [
-        75,
-        238,
-        55,
-        242,
-        206,
-        229,
-        105,
-        255
-      ],
+      "discriminator": [75, 238, 55, 242, 206, 229, 105, 255],
       "accounts": [
         {
           "name": "ad_slot",
@@ -34,16 +25,7 @@
     },
     {
       "name": "close_auction",
-      "discriminator": [
-        225,
-        129,
-        91,
-        48,
-        215,
-        73,
-        203,
-        172
-      ],
+      "discriminator": [225, 129, 91, 48, 215, 73, 203, 172],
       "accounts": [
         {
           "name": "ad_slot",
@@ -59,21 +41,27 @@
     },
     {
       "name": "create_ad",
-      "discriminator": [
-        103,
-        133,
-        51,
-        53,
-        3,
-        145,
-        44,
-        142
-      ],
+      "discriminator": [103, 133, 51, 53, 3, 145, 44, 142],
       "accounts": [
         {
           "name": "ad",
           "writable": true,
-          "signer": true
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [97, 100]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "arg",
+                "path": "ad_id"
+              }
+            ]
+          }
         },
         {
           "name": "owner",
@@ -101,21 +89,27 @@
     },
     {
       "name": "create_ad_slot",
-      "discriminator": [
-        84,
-        96,
-        90,
-        104,
-        188,
-        66,
-        237,
-        230
-      ],
+      "discriminator": [84, 96, 90, 104, 188, 66, 237, 230],
       "accounts": [
         {
           "name": "ad_slot",
           "writable": true,
-          "signer": true
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [97, 100, 95, 115, 108, 111, 116]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "arg",
+                "path": "slot_id"
+              }
+            ]
+          }
         },
         {
           "name": "owner",
@@ -160,16 +154,7 @@
     },
     {
       "name": "deactivate_slot",
-      "discriminator": [
-        134,
-        227,
-        70,
-        134,
-        219,
-        185,
-        7,
-        225
-      ],
+      "discriminator": [134, 227, 70, 134, 219, 185, 7, 225],
       "accounts": [
         {
           "name": "ad_slot",
@@ -185,16 +170,7 @@
     },
     {
       "name": "increment_view",
-      "discriminator": [
-        40,
-        245,
-        156,
-        180,
-        36,
-        179,
-        163,
-        229
-      ],
+      "discriminator": [40, 245, 156, 180, 36, 179, 163, 229],
       "accounts": [
         {
           "name": "ad_slot",
@@ -205,16 +181,7 @@
     },
     {
       "name": "place_bid",
-      "discriminator": [
-        238,
-        77,
-        148,
-        91,
-        200,
-        151,
-        92,
-        146
-      ],
+      "discriminator": [238, 77, 148, 91, 200, 151, 92, 146],
       "accounts": [
         {
           "name": "ad_slot",
@@ -237,96 +204,33 @@
   "accounts": [
     {
       "name": "Ad",
-      "discriminator": [
-        81,
-        91,
-        73,
-        106,
-        215,
-        137,
-        214,
-        47
-      ]
+      "discriminator": [81, 91, 73, 106, 215, 137, 214, 47]
     },
     {
       "name": "AdSlot",
-      "discriminator": [
-        144,
-        74,
-        20,
-        57,
-        15,
-        178,
-        12,
-        70
-      ]
+      "discriminator": [144, 74, 20, 57, 15, 178, 12, 70]
     }
   ],
   "events": [
     {
       "name": "AdCreated",
-      "discriminator": [
-        248,
-        243,
-        176,
-        143,
-        45,
-        118,
-        189,
-        216
-      ]
+      "discriminator": [248, 243, 176, 143, 45, 118, 189, 216]
     },
     {
       "name": "AuctionClosed",
-      "discriminator": [
-        104,
-        72,
-        168,
-        177,
-        241,
-        79,
-        231,
-        167
-      ]
+      "discriminator": [104, 72, 168, 177, 241, 79, 231, 167]
     },
     {
       "name": "BidPlaced",
-      "discriminator": [
-        135,
-        53,
-        176,
-        83,
-        193,
-        69,
-        108,
-        61
-      ]
+      "discriminator": [135, 53, 176, 83, 193, 69, 108, 61]
     },
     {
       "name": "SlotCreated",
-      "discriminator": [
-        197,
-        65,
-        108,
-        214,
-        61,
-        146,
-        184,
-        122
-      ]
+      "discriminator": [197, 65, 108, 214, 61, 146, 184, 122]
     },
     {
       "name": "SlotPurchased",
-      "discriminator": [
-        45,
-        233,
-        55,
-        78,
-        82,
-        206,
-        170,
-        85
-      ]
+      "discriminator": [45, 233, 55, 78, 82, 206, 170, 85]
     }
   ],
   "errors": [
@@ -359,6 +263,11 @@
       "code": 6005,
       "name": "Unauthorized",
       "msg": "Unauthorized action"
+    },
+    {
+      "code": 6006,
+      "name": "StringTooLong",
+      "msg": "String too long"
     }
   ],
   "types": [

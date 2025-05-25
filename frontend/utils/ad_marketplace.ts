@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/ad_marketplace.json`.
  */
 export type AdMarketplace = {
-  "address": "5JFj9EFPa45pycaUmR8GwdzNXjZqZQ5ZQ3n6ndhQPYse",
+  "address": "3jkjToSBTNwBruFHv5JeJKoNTDLRahmuUmSQMAaddrVY",
   "metadata": {
     "name": "adMarketplace",
     "version": "0.1.0",
@@ -79,7 +79,25 @@ export type AdMarketplace = {
         {
           "name": "ad",
           "writable": true,
-          "signer": true
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "arg",
+                "path": "adId"
+              }
+            ]
+          }
         },
         {
           "name": "owner",
@@ -121,7 +139,30 @@ export type AdMarketplace = {
         {
           "name": "adSlot",
           "writable": true,
-          "signer": true
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  100,
+                  95,
+                  115,
+                  108,
+                  111,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "arg",
+                "path": "slotId"
+              }
+            ]
+          }
         },
         {
           "name": "owner",
@@ -365,6 +406,11 @@ export type AdMarketplace = {
       "code": 6005,
       "name": "unauthorized",
       "msg": "Unauthorized action"
+    },
+    {
+      "code": 6006,
+      "name": "stringTooLong",
+      "msg": "String too long"
     }
   ],
   "types": [

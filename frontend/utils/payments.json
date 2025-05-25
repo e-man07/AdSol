@@ -1,5 +1,5 @@
 {
-  "address": "7by1kwKb8JK1rLATnwtRFKvWjUqqV4HMQyFWa9UwVg8k",
+  "address": "5D3Ngbtgv2W3hyU7hCdXcx1XUZuFUyH1ufLstw1V7eN6",
   "metadata": {
     "name": "payments",
     "version": "0.1.0",
@@ -9,16 +9,7 @@
   "instructions": [
     {
       "name": "escrow_payment",
-      "discriminator": [
-        139,
-        86,
-        100,
-        49,
-        169,
-        160,
-        160,
-        12
-      ],
+      "discriminator": [139, 86, 100, 49, 169, 160, 160, 12],
       "accounts": [
         {
           "name": "escrow",
@@ -27,14 +18,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  101,
-                  115,
-                  99,
-                  114,
-                  111,
-                  119
-                ]
+                "value": [101, 115, 99, 114, 111, 119]
               },
               {
                 "kind": "account",
@@ -69,16 +53,7 @@
     },
     {
       "name": "refund_escrow",
-      "discriminator": [
-        107,
-        186,
-        89,
-        99,
-        26,
-        194,
-        23,
-        204
-      ],
+      "discriminator": [107, 186, 89, 99, 26, 194, 23, 204],
       "accounts": [
         {
           "name": "escrow",
@@ -87,9 +62,7 @@
         {
           "name": "advertiser",
           "writable": true,
-          "relations": [
-            "escrow"
-          ]
+          "relations": ["escrow"]
         },
         {
           "name": "ad_slot"
@@ -103,16 +76,7 @@
     },
     {
       "name": "release_escrow",
-      "discriminator": [
-        146,
-        253,
-        129,
-        233,
-        20,
-        145,
-        181,
-        206
-      ],
+      "discriminator": [146, 253, 129, 233, 20, 145, 181, 206],
       "accounts": [
         {
           "name": "escrow",
@@ -121,9 +85,7 @@
         {
           "name": "publisher",
           "writable": true,
-          "relations": [
-            "escrow"
-          ]
+          "relations": ["escrow"]
         },
         {
           "name": "ad_slot"
@@ -139,70 +101,25 @@
   "accounts": [
     {
       "name": "AdSlot",
-      "discriminator": [
-        144,
-        74,
-        20,
-        57,
-        15,
-        178,
-        12,
-        70
-      ]
+      "discriminator": [144, 74, 20, 57, 15, 178, 12, 70]
     },
     {
       "name": "Escrow",
-      "discriminator": [
-        31,
-        213,
-        123,
-        187,
-        186,
-        22,
-        218,
-        155
-      ]
+      "discriminator": [31, 213, 123, 187, 186, 22, 218, 155]
     }
   ],
   "events": [
     {
       "name": "EscrowCreated",
-      "discriminator": [
-        70,
-        127,
-        105,
-        102,
-        92,
-        97,
-        7,
-        173
-      ]
+      "discriminator": [70, 127, 105, 102, 92, 97, 7, 173]
     },
     {
       "name": "EscrowRefunded",
-      "discriminator": [
-        132,
-        209,
-        49,
-        109,
-        135,
-        138,
-        28,
-        81
-      ]
+      "discriminator": [132, 209, 49, 109, 135, 138, 28, 81]
     },
     {
       "name": "EscrowReleased",
-      "discriminator": [
-        131,
-        7,
-        138,
-        104,
-        166,
-        190,
-        113,
-        112
-      ]
+      "discriminator": [131, 7, 138, 104, 166, 190, 113, 112]
     }
   ],
   "errors": [

@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/payments.json`.
  */
 export type Payments = {
-  "address": "7by1kwKb8JK1rLATnwtRFKvWjUqqV4HMQyFWa9UwVg8k",
+  "address": "5D3Ngbtgv2W3hyU7hCdXcx1XUZuFUyH1ufLstw1V7eN6",
   "metadata": {
     "name": "payments",
     "version": "0.1.0",

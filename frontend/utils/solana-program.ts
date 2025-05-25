@@ -1,7 +1,7 @@
 "use client";
 
 import { useAnchorWallet, useConnection } from '@solana/wallet-adapter-react';
-import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram } from '@solana/web3.js';
+import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, ComputeBudgetProgram } from '@solana/web3.js';
 import { AnchorProvider, BN, Program, setProvider, web3 } from "@coral-xyz/anchor";
 import type { AdMarketplace } from './ad_marketplace';
 import adMarketplaceIDL from './ad_marketplace.json';
@@ -9,11 +9,39 @@ import type { Payments } from './payments';
 import paymentsIDL from './payments.json';
 
 // Actual program IDs from the deployed smart contracts
-const PAYMENTS_PROGRAM_ID = new PublicKey('7by1kwKb8JK1rLATnwtRFKvWjUqqV4HMQyFWa9UwVg8k');
+const PAYMENTS_PROGRAM_ID = new PublicKey('5D3Ngbtgv2W3hyU7hCdXcx1XUZuFUyH1ufLstw1V7eN6');
+
+/**
+ * Finds the Program Derived Address (PDA) for an ad slot
+ * @param programId - The program ID of the ad marketplace program
+ * @param owner - The public key of the slot owner
+ * @param slotId - The unique identifier for the ad slot
+ * @returns The PDA for the ad slot
+ */
+export const findAdSlotPda = (programId: PublicKey, owner: PublicKey, slotId: string): PublicKey => {
+  const [pda] = PublicKey.findProgramAddressSync(
+    [Buffer.from("ad_slot"), owner.toBuffer(), Buffer.from(slotId)],
+    programId
+  );
+  return pda;
+};
 
 export const useAdProgram = () => {
   const wallet = useAnchorWallet();
   const { connection } = useConnection();
+  
+  // Find ad slot PDA
+  const getAdSlotPda = (slotId: string): PublicKey | null => {
+    if (!wallet?.publicKey) return null;
+    try {
+      const program = getAdMarketplaceProgram();
+      if (!program) return null;
+      return findAdSlotPda(program.programId, wallet.publicKey, slotId);
+    } catch (error) {
+      console.error("Error finding ad slot PDA:", error);
+      return null;
+    }
+  };
   
   // Get the ad marketplace program instance
   const getAdMarketplaceProgram = () => {
@@ -90,52 +118,58 @@ export const useAdProgram = () => {
       
       const program = getAdMarketplaceProgram();
       if (!program) throw new Error('Program not initialized');
+
+      // Validate string lengths to match smart contract constraints
+      if (slotId.length > 20) {
+        throw new Error('Slot ID must be 20 characters or less');
+      }
       
-      // Limit string sizes to prevent memory issues
-      const limitedSlotId = slotId.substring(0, 32); // Limit to 32 chars
-      const limitedCategory = category.substring(0, 16); // Limit to 16 chars
-      
-      // Generate keypair for the new ad slot
-      const adSlot = Keypair.generate();
+      if (category.length > 20) {
+        throw new Error('Category must be 20 characters or less');
+      }
+
       const isAuction = purchaseType === 'auction';
       const auctionEndTimestamp = isAuction && auctionEnd ? auctionEnd : 0;
       
+      // Generate PDA for the ad slot
+      const [adSlotPda] = await PublicKey.findProgramAddress(
+        [Buffer.from("ad_slot"), wallet.publicKey.toBuffer(), Buffer.from(slotId)],
+        program.programId
+      );
+      
+      // Create the ad slot account with the wallet as the signer
+      
       console.log('Creating ad slot with parameters:', {
-        slotId: limitedSlotId,
+        slotId,
         price,
         duration,
         isAuction,
         auctionEndTimestamp,
-        category: limitedCategory,
+        category,
         audienceSize
       });
       
-      // Set compute budget to handle larger transactions
-      const modifyComputeUnits = web3.ComputeBudgetProgram.setComputeUnitLimit({
-        units: 300000,
+      // Add compute budget instruction to increase compute limit
+      const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
+        units: 400000 // Double the default compute budget
       });
-
-      const modfiyMicroLamports = web3.ComputeBudgetProgram.setComputeUnitPrice({
-        microLamports: 100,
-      })
       
-      // Create the transaction
+      // Create the transaction with compute budget instruction
       const tx = await program.methods.createAdSlot(
-        limitedSlotId,
+        slotId,
         new BN(price),
         new BN(duration),
         isAuction,
         new BN(auctionEndTimestamp),
-        limitedCategory,
+        category,
         new BN(audienceSize)
       )
       .accounts({
-        adSlot: adSlot.publicKey,
+        adSlot: adSlotPda,
         owner: wallet.publicKey,
         systemProgram: SystemProgram.programId,
       })
-      .preInstructions([modifyComputeUnits, modfiyMicroLamports]) // Add compute budget instruction
-      .signers([adSlot])
+      .preInstructions([modifyComputeUnits]) // Add compute budget instruction before the main instruction
       .rpc();
       
       return {
@@ -600,6 +634,7 @@ export const useAdProgram = () => {
     getAdvertiserAds,
     createEscrowPayment,
     releaseEscrowPayment,
-    refundEscrowPayment
+    refundEscrowPayment,
+    getAdSlotPda
   };
 };
