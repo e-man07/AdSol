@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("GP2BCEo8Ciz7gNBvwB7KMMTTuzAroiHMsdALuNq1q4XB");
+declare_id!("3jkjToSBTNwBruFHv5JeJKoNTDLRahmuUmSQMAaddrVY");
 
 const MAX_SLOT_ID_LENGTH: usize = 50;
 const MAX_CATEGORY_LENGTH: usize = 50;
@@ -27,6 +27,10 @@ pub mod ad_marketplace {
         category: String,
         audience_size: u64,
     ) -> Result<()> {
+        // Validate string lengths before processing
+        require!(slot_id.len() <= MAX_SLOT_ID_LENGTH, ErrorCode::StringTooLong);
+        require!(category.len() <= MAX_CATEGORY_LENGTH, ErrorCode::StringTooLong);
+        
         let ad_slot = &mut ctx.accounts.ad_slot;
         ad_slot.owner = *ctx.accounts.owner.key;
         ad_slot.slot_id = slot_id.clone();
@@ -54,6 +58,10 @@ pub mod ad_marketplace {
         ad_id: String,
         media_cid: String,
     ) -> Result<()> {
+        // Validate string lengths
+        require!(ad_id.len() <= MAX_AD_ID_LENGTH, ErrorCode::StringTooLong);
+        require!(media_cid.len() <= MAX_MEDIA_CID_LENGTH, ErrorCode::StringTooLong);
+        
         let ad = &mut ctx.accounts.ad;
         ad.owner = *ctx.accounts.owner.key;
         ad.ad_id = ad_id;
@@ -175,7 +183,7 @@ pub struct CreateAdSlot<'info> {
         payer = owner,
         space = 8 + // discriminator
                 32 + // owner
-                4 + MAX_SLOT_ID_LENGTH + // slot_id with max length
+                4 + MAX_SLOT_ID_LENGTH + // slot_id (4 bytes length + max content)
                 8 + // price
                 8 + // duration
                 1 + // is_auction
@@ -184,8 +192,10 @@ pub struct CreateAdSlot<'info> {
                 32 + // highest_bidder
                 1 + // is_active
                 8 + // view_count
-                4 + MAX_CATEGORY_LENGTH + // category with max length
-                8 // audience_size
+                4 + MAX_CATEGORY_LENGTH + // category (4 bytes length + max content)
+                8, // audience_size
+        seeds = [b"ad_slot", owner.key().as_ref(), slot_id.as_bytes()],
+        bump
     )]
     pub ad_slot: Account<'info, AdSlot>,
     #[account(mut)]
@@ -201,9 +211,11 @@ pub struct CreateAd<'info> {
         payer = owner,
         space = 8 + // discriminator
                 32 + // owner
-                4 + MAX_AD_ID_LENGTH + // ad_id with max length
-                4 + MAX_MEDIA_CID_LENGTH + // media_cid with max length
-                32 // slot_key
+                4 + MAX_AD_ID_LENGTH + // ad_id (4 bytes length + max content)
+                4 + MAX_MEDIA_CID_LENGTH + // media_cid (4 bytes length + max content)
+                32, // slot_key
+        seeds = [b"ad", owner.key().as_ref(), ad_id.as_bytes()],
+        bump
     )]
     pub ad: Account<'info, Ad>,
     #[account(mut)]
@@ -295,4 +307,6 @@ pub enum ErrorCode {
     AuctionNotEnded,
     #[msg("Unauthorized action")]
     Unauthorized,
+    #[msg("String too long")]
+    StringTooLong,
 }

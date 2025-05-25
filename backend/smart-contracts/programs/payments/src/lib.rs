@@ -17,7 +17,7 @@ pub struct AdSlot {
     pub audience_size: u64,
 }
 
-declare_id!("4Gmw6sYgyKB4Ppavaw5AhvkDEXj8EAPftW6DU2AUYBkB");
+declare_id!("5D3Ngbtgv2W3hyU7hCdXcx1XUZuFUyH1ufLstw1V7eN6");
 
 #[program]
 pub mod payments {
