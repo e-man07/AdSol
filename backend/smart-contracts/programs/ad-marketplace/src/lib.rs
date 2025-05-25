@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("5JFj9EFPa45pycaUmR8GwdzNXjZqZQ5ZQ3n6ndhQPYse");
+declare_id!("GP2BCEo8Ciz7gNBvwB7KMMTTuzAroiHMsdALuNq1q4XB");
 
 const MAX_SLOT_ID_LENGTH: usize = 50;
 const MAX_CATEGORY_LENGTH: usize = 50;

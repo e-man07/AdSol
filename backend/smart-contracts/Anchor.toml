@@ -7,8 +7,8 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-ad_marketplace = "5JFj9EFPa45pycaUmR8GwdzNXjZqZQ5ZQ3n6ndhQPYse"
-payments = "7by1kwKb8JK1rLATnwtRFKvWjUqqV4HMQyFWa9UwVg8k"
+ad_marketplace = "GP2BCEo8Ciz7gNBvwB7KMMTTuzAroiHMsdALuNq1q4XB"
+payments = "4Gmw6sYgyKB4Ppavaw5AhvkDEXj8EAPftW6DU2AUYBkB"
 
 [registry]
 url = "https://api.apr.dev"
