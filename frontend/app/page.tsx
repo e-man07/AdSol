@@ -1,49 +1,33 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 import {
-  Zap,
-  Rocket,
-  TrendingUp,
-  Shield,
-  Users,
-  BarChart3,
   ArrowRight,
+  BarChart3,
   ChevronDown,
-  Sparkles,
   Coins,
-} from "lucide-react"
-import { useWallet } from "@solana/wallet-adapter-react"
-import WalletButton from "@/components/ui/wallet-button"
-import Link from "next/link"
-import Image from "next/image"
-import { cn } from "@/lib/utils"
-import { useInView } from "react-intersection-observer"
+  Rocket,
+  Shield,
+  Sparkles,
+  TrendingUp,
+  Users,
+  Zap,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useInView } from "react-intersection-observer";
 
 export default function LandingPage() {
-  const [scrollY, setScrollY] = useState(0)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-
   const { ref: statsRef, inView: statsInView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
-  })
+  });
 
   const { ref: featuresRef, inView: featuresInView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
-  })
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY)
-    }
-
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+  });
 
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden">
@@ -73,87 +57,6 @@ export default function LandingPage() {
         ))}
       </div>
 
-      {/* Header */}
-      <header
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-          scrollY > 50 ? "bg-black/90 backdrop-blur-md py-3 shadow-lg" : "bg-transparent py-5",
-        )}
-      >
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <motion.div
-              initial={{ rotate: -10 }}
-              animate={{ rotate: 10 }}
-              transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, repeatType: "reverse" }}
-            >
-              <Sparkles className="h-8 w-8 text-white" />
-            </motion.div>
-            <span className="text-2xl font-bold text-white">SolAds</span>
-          </div>
-
-          <div className="hidden md:flex items-center gap-8">
-            {["Features", "How It Works", "Pricing", "Marketplace"].map((item) => (
-              <Link
-                key={item}
-                href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-                className="relative font-medium group"
-              >
-                {item}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
-              </Link>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="hidden md:block">
-              <WalletButton />
-            </div>
-
-            <button className="md:hidden text-white" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile menu */}
-        {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="md:hidden absolute top-full left-0 right-0 bg-black/95 backdrop-blur-md shadow-lg"
-          >
-            <div className="container mx-auto px-4 py-4 flex flex-col gap-4">
-              {["Features", "How It Works", "Pricing", "Marketplace"].map((item) => (
-                <Link
-                  key={item}
-                  href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-                  className="py-2 px-4 hover:bg-purple-800/50 rounded-md"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item}
-                </Link>
-              ))}
-              <Button className="mt-2 bg-white text-black hover:bg-gray-200 border-none">Connect Wallet</Button>
-            </div>
-          </motion.div>
-        )}
-      </header>
-
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
@@ -172,15 +75,18 @@ export default function LandingPage() {
                 <span className="text-white">On-Chain Advertising</span>
               </h1>
               <p className="text-lg md:text-xl text-purple-100/90 max-w-lg">
-                The first decentralized marketplace connecting advertisers and publishers with transparent metrics,
-                instant payments, and zero middlemen.
+                The first decentralized marketplace connecting advertisers and
+                publishers with transparent metrics, instant payments, and zero
+                middlemen.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                <Button className="bg-white text-black hover:bg-gray-200 font-medium px-8 py-6 rounded-xl text-lg shadow-lg shadow-white/10 hover:shadow-white/20 transition-all">
-                  Launch App
-                  <Rocket className="ml-2 h-5 w-5" />
-                </Button>
+                <Link href="/dashboard">
+                  <Button className="bg-white text-black hover:bg-gray-200 font-medium px-8 py-6 rounded-xl text-lg shadow-lg shadow-white/10 hover:shadow-white/20 transition-all">
+                    Launch App
+                    <Rocket className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
                 <Button
                   variant="outline"
                   className="border-2 border-white/30 bg-transparent hover:bg-white/10 text-white font-medium px-8 py-6 rounded-xl text-lg"
@@ -202,7 +108,8 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <p className="text-sm text-purple-200">
-                  <span className="font-bold">1,200+</span> users already onboarded
+                  <span className="font-bold">1,200+</span> users already
+                  onboarded
                 </p>
               </div>
             </motion.div>
@@ -224,9 +131,12 @@ export default function LandingPage() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end">
                     <div className="p-6">
-                      <h3 className="text-xl font-bold mb-2">Marketplace Dashboard</h3>
+                      <h3 className="text-xl font-bold mb-2">
+                        Marketplace Dashboard
+                      </h3>
                       <p className="text-sm text-purple-100/80">
-                        Connect, create campaigns, and track performance in real-time
+                        Connect, create campaigns, and track performance in
+                        real-time
                       </p>
                     </div>
                   </div>
@@ -267,14 +177,37 @@ export default function LandingPage() {
       </section>
 
       {/* Stats Section */}
-      <section ref={statsRef} className="py-16 md:py-24 relative z-10 bg-gray-900/50 backdrop-blur-sm">
+      <section
+        ref={statsRef}
+        className="py-16 md:py-24 relative z-10 bg-gray-900/50 backdrop-blur-sm"
+      >
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10">
             {[
-              { value: "$12M+", label: "Ad Volume", icon: BarChart3, color: "from-green-400 to-cyan-400" },
-              { value: "0.5s", label: "Settlement Time", icon: Zap, color: "from-yellow-400 to-orange-400" },
-              { value: "10,000+", label: "Publishers", icon: Users, color: "from-purple-400 to-pink-400" },
-              { value: "100%", label: "Transparency", icon: Shield, color: "from-blue-400 to-indigo-400" },
+              {
+                value: "$12M+",
+                label: "Ad Volume",
+                icon: BarChart3,
+                color: "from-green-400 to-cyan-400",
+              },
+              {
+                value: "0.5s",
+                label: "Settlement Time",
+                icon: Zap,
+                color: "from-yellow-400 to-orange-400",
+              },
+              {
+                value: "10,000+",
+                label: "Publishers",
+                icon: Users,
+                color: "from-purple-400 to-pink-400",
+              },
+              {
+                value: "100%",
+                label: "Transparency",
+                icon: Shield,
+                color: "from-blue-400 to-indigo-400",
+              },
             ].map((stat, index) => (
               <motion.div
                 key={index}
@@ -286,7 +219,9 @@ export default function LandingPage() {
                 <div className="p-3 rounded-lg bg-white mb-4">
                   <stat.icon className="h-6 w-6 text-black" />
                 </div>
-                <h3 className="text-2xl md:text-4xl font-bold mb-1">{stat.value}</h3>
+                <h3 className="text-2xl md:text-4xl font-bold mb-1">
+                  {stat.value}
+                </h3>
                 <p className="text-sm text-purple-200/80">{stat.label}</p>
               </motion.div>
             ))}
@@ -295,7 +230,11 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" ref={featuresRef} className="py-20 md:py-32 relative z-10">
+      <section
+        id="features"
+        ref={featuresRef}
+        className="py-20 md:py-32 relative z-10"
+      >
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <motion.div
@@ -307,8 +246,9 @@ export default function LandingPage() {
                 <span className="text-white">Why Choose SolAds?</span>
               </h2>
               <p className="text-lg text-purple-100/80">
-                Our platform combines the power of Solana blockchain with cutting-edge ad tech to create a revolutionary
-                advertising ecosystem.
+                Our platform combines the power of Solana blockchain with
+                cutting-edge ad tech to create a revolutionary advertising
+                ecosystem.
               </p>
             </motion.div>
           </div>
@@ -390,15 +330,18 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="py-20 md:py-32 relative z-10 bg-black">
+      <section
+        id="how-it-works"
+        className="py-20 md:py-32 relative z-10 bg-black"
+      >
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
               <span className="text-white">How SolAds Works</span>
             </h2>
             <p className="text-lg text-purple-100/80">
-              Our platform makes on-chain advertising simple, transparent, and effective for both advertisers and
-              publishers.
+              Our platform makes on-chain advertising simple, transparent, and
+              effective for both advertisers and publishers.
             </p>
           </div>
 
@@ -409,7 +352,8 @@ export default function LandingPage() {
             {[
               {
                 title: "Connect Wallet",
-                description: "Link your Solana wallet to access the platform as an advertiser or publisher.",
+                description:
+                  "Link your Solana wallet to access the platform as an advertiser or publisher.",
                 image: "/placeholder.svg?height=300&width=400",
                 align: "left",
               },
@@ -437,11 +381,18 @@ export default function LandingPage() {
             ].map((step, index) => (
               <div key={index} className="mb-16 last:mb-0">
                 <div
-                  className={`flex flex-col ${step.align === "right" ? "md:flex-row-reverse" : "md:flex-row"} items-center gap-8`}
+                  className={`flex flex-col ${
+                    step.align === "right"
+                      ? "md:flex-row-reverse"
+                      : "md:flex-row"
+                  } items-center gap-8`}
                 >
                   <motion.div
                     className="w-full md:w-1/2"
-                    initial={{ opacity: 0, x: step.align === "right" ? 20 : -20 }}
+                    initial={{
+                      opacity: 0,
+                      x: step.align === "right" ? 20 : -20,
+                    }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5 }}
@@ -462,7 +413,10 @@ export default function LandingPage() {
 
                   <motion.div
                     className="w-full md:w-1/2"
-                    initial={{ opacity: 0, x: step.align === "right" ? -20 : 20 }}
+                    initial={{
+                      opacity: 0,
+                      x: step.align === "right" ? -20 : 20,
+                    }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5 }}
@@ -474,7 +428,9 @@ export default function LandingPage() {
                       </div>
 
                       <div className="pt-12 md:pt-0 md:pl-8 md:pr-8">
-                        <h3 className="text-2xl font-bold mb-4">{step.title}</h3>
+                        <h3 className="text-2xl font-bold mb-4">
+                          {step.title}
+                        </h3>
                         <p className="text-purple-100/80">{step.description}</p>
                       </div>
                     </div>
@@ -495,17 +451,22 @@ export default function LandingPage() {
             <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-gray-500 rounded-full blur-[100px] opacity-10"></div>
 
             <div className="relative z-10 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Revolutionize Your Advertising?</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                Ready to Revolutionize Your Advertising?
+              </h2>
               <p className="text-lg text-purple-100/80 mb-8 max-w-2xl mx-auto">
-                Join the future of on-chain advertising today. Connect your wallet, create your first campaign, and
-                experience the power of decentralized advertising.
+                Join the future of on-chain advertising today. Connect your
+                wallet, create your first campaign, and experience the power of
+                decentralized advertising.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="bg-white text-black hover:bg-gray-200 font-medium px-8 py-6 rounded-xl text-lg shadow-lg shadow-white/10 hover:shadow-white/20 transition-all">
-                  Launch App
-                  <Rocket className="ml-2 h-5 w-5" />
-                </Button>
+                <Link href="/dashboard">
+                  <Button className="bg-white text-black hover:bg-gray-200 font-medium px-8 py-6 rounded-xl text-lg shadow-lg shadow-white/10 hover:shadow-white/20 transition-all">
+                    Launch App
+                    <Rocket className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
                 <Button
                   variant="outline"
                   className="border-2 border-white/30 bg-transparent hover:bg-white/10 text-white font-medium px-8 py-6 rounded-xl text-lg"
@@ -529,8 +490,9 @@ export default function LandingPage() {
                 <span className="text-xl font-bold text-white">SolAds</span>
               </div>
               <p className="text-purple-100/80 max-w-md mb-6">
-                The first decentralized marketplace connecting advertisers and publishers with transparent metrics,
-                instant payments, and zero middlemen.
+                The first decentralized marketplace connecting advertisers and
+                publishers with transparent metrics, instant payments, and zero
+                middlemen.
               </p>
               <div className="flex gap-4">
                 {["twitter", "discord", "github", "telegram"].map((social) => (
@@ -549,9 +511,18 @@ export default function LandingPage() {
             <div>
               <h3 className="font-bold text-lg mb-4">Platform</h3>
               <ul className="space-y-2">
-                {["Features", "How It Works", "Pricing", "Marketplace", "Roadmap"].map((item) => (
+                {[
+                  "Features",
+                  "How It Works",
+                  "Pricing",
+                  "Marketplace",
+                  "Roadmap",
+                ].map((item) => (
                   <li key={item}>
-                    <Link href="#" className="text-purple-100/80 hover:text-white transition-colors">
+                    <Link
+                      href="#"
+                      className="text-purple-100/80 hover:text-white transition-colors"
+                    >
                       {item}
                     </Link>
                   </li>
@@ -562,9 +533,18 @@ export default function LandingPage() {
             <div>
               <h3 className="font-bold text-lg mb-4">Resources</h3>
               <ul className="space-y-2">
-                {["Documentation", "API", "Analytics", "Support", "Community"].map((item) => (
+                {[
+                  "Documentation",
+                  "API",
+                  "Analytics",
+                  "Support",
+                  "Community",
+                ].map((item) => (
                   <li key={item}>
-                    <Link href="#" className="text-purple-100/80 hover:text-white transition-colors">
+                    <Link
+                      href="#"
+                      className="text-purple-100/80 hover:text-white transition-colors"
+                    >
                       {item}
                     </Link>
                   </li>
@@ -574,15 +554,26 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm text-purple-100/60">© {new Date().getFullYear()} SolAds. All rights reserved.</p>
+            <p className="text-sm text-purple-100/60">
+              © {new Date().getFullYear()} SolAds. All rights reserved.
+            </p>
             <div className="flex gap-6 mt-4 md:mt-0">
-              <Link href="#" className="text-sm text-purple-100/60 hover:text-white transition-colors">
+              <Link
+                href="#"
+                className="text-sm text-purple-100/60 hover:text-white transition-colors"
+              >
                 Privacy Policy
               </Link>
-              <Link href="#" className="text-sm text-purple-100/60 hover:text-white transition-colors">
+              <Link
+                href="#"
+                className="text-sm text-purple-100/60 hover:text-white transition-colors"
+              >
                 Terms of Service
               </Link>
-              <Link href="#" className="text-sm text-purple-100/60 hover:text-white transition-colors">
+              <Link
+                href="#"
+                className="text-sm text-purple-100/60 hover:text-white transition-colors"
+              >
                 Cookie Policy
               </Link>
             </div>
@@ -590,5 +581,5 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

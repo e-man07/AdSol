@@ -1,61 +1,35 @@
 "use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useRole } from '@/contexts/RoleContext';
-import RoleSelection from '@/components/RoleSelection';
-import useWalletConnection from '@/hooks/useWalletConnection';
-import { motion } from 'framer-motion';
+import RoleSelection from "@/components/RoleSelection";
+import { useRole } from "@/contexts/RoleContext";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function DashboardPage() {
-  const { role, isRoleSelected } = useRole();
-  const { connected } = useWalletConnection();
+  const { role } = useRole();
   const router = useRouter();
-  
-  // Redirect to the appropriate dashboard if role is already selected
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
-    if (connected && isRoleSelected && role) {
-      router.push(`/dashboard/${role}`);
+    if (role) {
+      setIsLoading(true);
+      const timer = setTimeout(() => {
+        if (role === "publisher") {
+          router.push("/dashboard/publisher");
+        } else if (role === "advertiser") {
+          router.push("/dashboard/advertiser");
+        }
+      }, 500); // Small delay for transition
+
+      return () => clearTimeout(timer);
     }
-  }, [connected, isRoleSelected, role, router]);
-  
+  }, [role, router]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="container mx-auto px-4 py-12"
-      >
-        <div className="max-w-4xl mx-auto">
-          {/* Role Selection Component */}
-          <RoleSelection />
-          
-          {/* Additional information */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.8 }}
-            className="mt-16 text-center"
-          >
-            <h3 className="text-xl font-medium text-gray-300 mb-4">Why choose SolAds?</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-              <div className="bg-gray-800/50 p-6 rounded-lg">
-                <div className="text-purple-400 text-2xl font-bold mb-2">100%</div>
-                <div className="text-gray-300">On-chain transparency</div>
-              </div>
-              <div className="bg-gray-800/50 p-6 rounded-lg">
-                <div className="text-purple-400 text-2xl font-bold mb-2">0%</div>
-                <div className="text-gray-300">Middleman fees</div>
-              </div>
-              <div className="bg-gray-800/50 p-6 rounded-lg">
-                <div className="text-purple-400 text-2xl font-bold mb-2">Instant</div>
-                <div className="text-gray-300">Settlement payments</div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </motion.div>
+    <div className="flex items-center justify-center h-[calc(100vh-120px)]">
+      <div className="w-full max-w-3xl">
+          <RoleSelection selectedRole={role} isLoading={isLoading} />
+      </div>
     </div>
   );
 }

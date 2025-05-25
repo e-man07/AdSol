@@ -1,14 +1,14 @@
-import type React from "react"
-import "@/app/globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import WalletContextProvider from "@/contexts/WalletContext"
-import RoleProvider from "@/contexts/RoleContext"
-import Header from "@/components/Header"
+import "@/app/globals.css";
+import Header from "@/components/Header";
+import { ThemeProvider } from "@/components/theme-provider";
+import RoleProvider from "@/contexts/RoleContext";
+import WalletContextProvider from "@/contexts/WalletContext";
+import type React from "react";
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -20,21 +20,24 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
           <WalletContextProvider>
             <RoleProvider>
               <Header />
-              <main className="pt-16">
-                {children}
-              </main>
+              <main className="pt-16">{children}</main>
             </RoleProvider>
           </WalletContextProvider>
         </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }
 
 export const metadata = {
-      generator: 'v0.dev'
-    };
+  generator: "v0.dev",
+};

@@ -3,8 +3,8 @@
 import { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL, Keypair } from '@solana/web3.js';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { Program, AnchorProvider, BN, web3 } from '@project-serum/anchor';
-import adMarketplaceIdl from '@/utils/ad_marketplace.json';
-import paymentsIdl from '@/utils/payments.json';
+import ad_marketplace from './ad_marketplace.json';
+import payments from './payments.json';
 
 // Actual program IDs from the deployed smart contracts
 const AD_MARKETPLACE_PROGRAM_ID = new PublicKey('5JFj9EFPa45pycaUmR8GwdzNXjZqZQ5ZQ3n6ndhQPYse');
@@ -48,7 +48,15 @@ export const useAdProgram = () => {
   
   // Get the ad marketplace program instance
   const getAdMarketplaceProgram = () => {
-    if (!wallet || !connection) return null;
+    if (!wallet || !connection) {
+      console.log('Wallet or connection not available');
+      return null;
+    }
+    
+    if (!wallet.publicKey) {
+      console.log('Wallet public key not available');
+      return null;
+    }
     
     const provider = new AnchorProvider(
       connection, 
@@ -56,12 +64,26 @@ export const useAdProgram = () => {
       { commitment: 'processed' }
     );
     
-    return new Program(adMarketplaceIdl as any, AD_MARKETPLACE_PROGRAM_ID, provider);
+    try {      
+      return new Program(ad_marketplace as any, AD_MARKETPLACE_PROGRAM_ID, provider);
+    } catch (error) {
+      console.error("Error initializing ad marketplace program:", error);
+      console.error("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+      return null;
+    }
   };
   
   // Get the payments program instance
   const getPaymentsProgram = () => {
-    if (!wallet || !connection) return null;
+    if (!wallet || !connection) {
+      console.log('Wallet or connection not available');
+      return null;
+    }
+    
+    if (!wallet.publicKey) {
+      console.log('Wallet public key not available');
+      return null;
+    }
     
     const provider = new AnchorProvider(
       connection, 
@@ -69,7 +91,13 @@ export const useAdProgram = () => {
       { commitment: 'processed' }
     );
     
-    return new Program(paymentsIdl as any, PAYMENTS_PROGRAM_ID, provider);
+    try {      
+      return new Program(payments as any, PAYMENTS_PROGRAM_ID, provider);
+    } catch (error) {
+      console.error("Error initializing payments program:", error);
+      console.error("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+      return null;
+    }
   };
   
   // Create a new ad slot
@@ -90,17 +118,42 @@ export const useAdProgram = () => {
       const program = getAdMarketplaceProgram();
       if (!program) throw new Error('Program not initialized');
       
+      // Limit string sizes to prevent memory issues
+      const limitedSlotId = slotId.substring(0, 32); // Limit to 32 chars
+      const limitedCategory = category.substring(0, 16); // Limit to 16 chars
+      
+      // Generate keypair for the new ad slot
       const adSlot = Keypair.generate();
       const isAuction = purchaseType === 'auction';
       const auctionEndTimestamp = isAuction && auctionEnd ? auctionEnd : 0;
       
+      console.log('Creating ad slot with parameters:', {
+        slotId: limitedSlotId,
+        price,
+        duration,
+        isAuction,
+        auctionEndTimestamp,
+        category: limitedCategory,
+        audienceSize
+      });
+      
+      // Set compute budget to handle larger transactions
+      const modifyComputeUnits = web3.ComputeBudgetProgram.setComputeUnitLimit({
+        units: 300000,
+      });
+
+      const modfiyMicroLamports = web3.ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: 100,
+      })
+      
+      // Create the transaction
       const tx = await program.methods.createAdSlot(
-        slotId,
+        limitedSlotId,
         new BN(price),
         new BN(duration),
         isAuction,
         new BN(auctionEndTimestamp),
-        category,
+        limitedCategory,
         new BN(audienceSize)
       )
       .accounts({
@@ -108,6 +161,7 @@ export const useAdProgram = () => {
         owner: wallet.publicKey,
         systemProgram: SystemProgram.programId,
       })
+      .preInstructions([modifyComputeUnits, modfiyMicroLamports]) // Add compute budget instruction
       .signers([adSlot])
       .rpc();
       
