@@ -124,7 +124,7 @@ export default function LandingPage() {
                 <div className="aspect-[4/3] relative rounded-xl overflow-hidden border-2 border-gray-700">
                   <Image
                     src="/placeholder.svg?height=600&width=800"
-                    alt="SolAds Platform Preview"
+                    alt="AdSol Platform Preview"
                     width={800}
                     height={600}
                     className="object-cover"
@@ -243,7 +243,7 @@ export default function LandingPage() {
               transition={{ duration: 0.5 }}
             >
               <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                <span className="text-white">Why Choose SolAds?</span>
+                <span className="text-white">Why Choose AdSol?</span>
               </h2>
               <p className="text-lg text-purple-100/80">
                 Our platform combines the power of Solana blockchain with
@@ -298,7 +298,7 @@ export default function LandingPage() {
               {
                 title: "Token Rewards",
                 description:
-                  "Earn SolAds tokens for participation, which can be staked for platform governance and additional benefits.",
+                  "Earn AdSol tokens for participation, which can be staked for platform governance and additional benefits.",
                 icon: Coins,
                 color: "from-purple-400 to-blue-500",
                 delay: 0.5,
@@ -337,7 +337,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              <span className="text-white">How SolAds Works</span>
+              <span className="text-white">How AdSol Works</span>
             </h2>
             <p className="text-lg text-purple-100/80">
               Our platform makes on-chain advertising simple, transparent, and
@@ -487,7 +487,7 @@ export default function LandingPage() {
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center gap-2 mb-4">
                 <Sparkles className="h-6 w-6 text-white" />
-                <span className="text-xl font-bold text-white">SolAds</span>
+                <span className="text-xl font-bold text-white">AdSol</span>
               </div>
               <p className="text-purple-100/80 max-w-md mb-6">
                 The first decentralized marketplace connecting advertisers and
@@ -555,7 +555,7 @@ export default function LandingPage() {
 
           <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm text-purple-100/60">
-              © {new Date().getFullYear()} SolAds. All rights reserved.
+              © {new Date().getFullYear()} AdSol. All rights reserved.
             </p>
             <div className="flex gap-6 mt-4 md:mt-0">
               <Link

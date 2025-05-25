@@ -67,7 +67,7 @@ export const Header: FC<HeaderProps> = ({ className }) => {
             <Sparkles className="h-8 w-8 text-white" />
           </motion.div>
           <Link href="/" className="text-2xl font-bold text-white">
-            SolAds
+            AdSol
           </Link>
         </div>
 

@@ -36,11 +36,11 @@ export const RoleSelection: FC<RoleSelectionProps> = ({
         <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
           <span className="block">Choose Your</span>
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-white">
-            Role in SolAds
+            Role in AdSol
           </span>
         </h2>
         <p className="text-purple-100/80 max-w-xl mx-auto px-2">
-          Select your role to get started with SolAds
+          Select your role to get started with AdSol
         </p>
       </div>
 

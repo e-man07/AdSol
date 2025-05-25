@@ -13,7 +13,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <title>SolAds - On-Chain Ads Marketplace on Solana</title>
+        <title>AdSol - On-Chain Ads Marketplace on Solana</title>
         <meta
           name="description"
           content="The first decentralized marketplace connecting advertisers and publishers with transparent metrics, instant payments, and zero middlemen."
@@ -39,5 +39,5 @@ export default function RootLayout({
 }
 
 export const metadata = {
-  generator: "v0.dev",
+  generator: "team dotapk",
 };
