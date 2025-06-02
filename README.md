@@ -1,4 +1,4 @@
-# MVP On-Chain Ads Marketplace(AdSol) with Next.js Frontend and Tailwind CSS
+# An On-Chain Ads Marketplace(AdSol) on Solana
 
 This artifact updates the MVP for an on-chain ads marketplace on Solana, retaining ad slot creation (fixed-price and auction), escrow payment with release, and IPFS storage for ad media (videos/images) with CIDs stored on-chain. The frontend is rebuilt using Next.js with Tailwind CSS for styling, providing a modern, responsive UI for advertisers and publishers. Essential features like slot management and basic analytics are included. The focus is on a functional prototype for devnet testing.
 
